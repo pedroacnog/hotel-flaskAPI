@@ -3,7 +3,8 @@ from flask_restful import Resource, reqparse
 
 class Hoteis(Resource): # Referente ao GET de todos os Hoteis
   def get(self):
-    return {'hoteis': [hotel.json() for hotel in HotelModel.query.all()]}
+    return {'hoteis': [hotel.json() for hotel in HotelModel.query.all()]} # SELECT * FROM HOTEIS
+
 
 class Hotel(Resource):
   argumentos = reqparse.RequestParser()
