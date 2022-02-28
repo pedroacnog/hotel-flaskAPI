@@ -1,3 +1,4 @@
+from cmath import exp
 from models.hotel import HotelModel
 from flask_restful import Resource, reqparse
 
@@ -8,8 +9,8 @@ class Hoteis(Resource): # Referente ao GET de todos os Hoteis
 
 class Hotel(Resource):
   argumentos = reqparse.RequestParser()
-  argumentos.add_argument('nome')
-  argumentos.add_argument('estrelas')
+  argumentos.add_argument('nome', type=str, required=True, help="The Field 'nome' cannot be left blank.")
+  argumentos.add_argument('estrelas', type=float, required=True, help="The Field 'estrelas' cannot be left blank.")
   argumentos.add_argument('diaria')
   argumentos.add_argument('cidade')
 
@@ -25,7 +26,10 @@ class Hotel(Resource):
     
     dados = Hotel.argumentos.parse_args()
     hotel = HotelModel(hotel_id, **dados)
-    hotel.save_hotel()
+    try:
+      hotel.save_hotel()
+    except:
+      return {'message': 'An internal error ocurred trying to save hotel.'}, 500
     return hotel.json()
 
   def put(self, hotel_id): # Recebe o hotel_id da url /hoteis/hotel_id
@@ -39,13 +43,19 @@ class Hotel(Resource):
       return hotel_encontrado.json(), 200
 
     hotel = HotelModel(hotel_id, **dados)
-    hotel.save_hotel()
+    try:
+      hotel.save_hotel()
+    except:
+      return {'message': 'An internal error ocurred trying to save hotel.'}, 500
     return hotel.json(), 201
 
   def delete(self, hotel_id): # Recebe o hotel_id da url /hoteis/hotel_id
     hotel = HotelModel.find_hotel(hotel_id)
     if hotel: 
-      hotel.delete_hotel()
+      try:
+        hotel.delete_hotel()
+      except:
+        return {'message': 'An error ocurred trying to delete hotel.'}, 500
       return {'message': 'Hotel deleted.'}
     return {'message': 'Hotel not found.'}, 404
      
