@@ -3,7 +3,7 @@ from models.hotel import HotelModel
 
 class Hoteis(Resource): # Referente ao GET de todos os Hoteis
   def get(self):
-    return {'hoteis': hoteis}
+    return {'hoteis': [hotel.json() for hotel in HotelModel.query.all()]} # SELECT * FROM HOTEIS
 
 class Hotel(Resource):
   argumentos = reqparse.RequestParser()
