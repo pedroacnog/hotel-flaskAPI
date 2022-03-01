@@ -1,4 +1,3 @@
-from cmath import exp
 from models.hotel import HotelModel
 from flask_restful import Resource, reqparse
 
