@@ -1,3 +1,4 @@
+from multiprocessing import connection
 from models.hotel import HotelModel
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required
@@ -41,9 +42,33 @@ path_params.add('offset', type=int)
 class Hoteis(Resource): # Referente ao GET de todos os Hoteis
   def get(self):
 
-    dados = path_params.parse_args()
+    connection = sqlite3.connect('banco.db')
+    cursor = connection.cursor()
+    
 
+    dados = path_params.parse_args()
     dados_validos = {chave:dados[chave] for chave in dados if dados[chave] is not None}
+    parametros = normalize_path_params(**dados_validos)
+
+    if not parametros.get('cidade'):  # semelhante - parametros['cidade']
+      consulta = "SELECT  * FROM hoteis \
+      WHERE (estrelas > ? and estrelas < ?)\
+      and (diaria > ? and diaria < ?) \
+      LIMIT ? OFFSET ?"
+
+      tupla = tupla([parametros[chave] for chave in parametros])
+      resultado = cursor.execute(consulta, tupla)
+
+    else:
+      consulta = "SELECT  * FROM hoteis \
+      WHERE (estrelas > ? and estrelas < ?)\
+      and (diaria > ? and diaria < ?) \
+      and cidade = ? LIMIT ? OFFSET ?"
+
+      tupla = tupla([parametros[chave] for chave in parametros])
+      resultado = cursor.execute(consulta, tupla)
+
+
     return {'hoteis': [hotel.json() for hotel in HotelModel.query.all()]} # SELECT * FROM HOTEIS
 
 class Hotel(Resource):
