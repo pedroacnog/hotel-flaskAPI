@@ -10,7 +10,7 @@ def normalize_path_params(cidade=None,
                           diaria_min = 0,
                           diaria_max = 10000,
                           limit = 50,
-                          offset = 0, **dados,):
+                          offset = 0, **dados):
   if cidade:
     return {
       'estrelas_min': estrelas_min,
@@ -30,13 +30,13 @@ def normalize_path_params(cidade=None,
 
 # path /hoteis?cidade=RioDeJaneiro
 path_params = reqparse.RequestParser()
-path_params.add('cidade', type=str)
-path_params.add('estrelas_min', type=float)
-path_params.add('estrelas_max', type=float)
-path_params.add('diaria_min', type=float)
-path_params.add('diaria_max', type=float)
-path_params.add('limit', type=int)
-path_params.add('offset', type=int)
+path_params.add_argument('cidade', type=str)
+path_params.add_argument('estrelas_min', type=float)
+path_params.add_argument('estrelas_max', type=float)
+path_params.add_argument('diaria_min', type=float)
+path_params.add_argument('diaria_max', type=float)
+path_params.add_argument('limit', type=int)
+path_params.add_argument('offset', type=int)
 
 
 class Hoteis(Resource): # Referente ao GET de todos os Hoteis
@@ -45,7 +45,6 @@ class Hoteis(Resource): # Referente ao GET de todos os Hoteis
     connection = sqlite3.connect('banco.db')
     cursor = connection.cursor()
     
-
     dados = path_params.parse_args()
     dados_validos = {chave:dados[chave] for chave in dados if dados[chave] is not None}
     parametros = normalize_path_params(**dados_validos)
@@ -56,7 +55,7 @@ class Hoteis(Resource): # Referente ao GET de todos os Hoteis
       and (diaria > ? and diaria < ?) \
       LIMIT ? OFFSET ?"
 
-      tupla = tupla([parametros[chave] for chave in parametros])
+      tupla = tuple([parametros[chave] for chave in parametros])
       resultado = cursor.execute(consulta, tupla)
 
     else:
@@ -65,11 +64,21 @@ class Hoteis(Resource): # Referente ao GET de todos os Hoteis
       and (diaria > ? and diaria < ?) \
       and cidade = ? LIMIT ? OFFSET ?"
 
-      tupla = tupla([parametros[chave] for chave in parametros])
+      tupla = tuple([parametros[chave] for chave in parametros])
       resultado = cursor.execute(consulta, tupla)
 
+    hoteis = []
+    for linha in resultado:
+      hoteis.append({
+      'hotel_id': linha[0],
+      'nome': linha[1],
+      'estrelas': linha[2],
+      'diaria': linha[3],
+      'cidade': linha[4]
+      })
 
-    return {'hoteis': [hotel.json() for hotel in HotelModel.query.all()]} # SELECT * FROM HOTEIS
+    connection.close()
+    return {'hoteis': hoteis} # SELECT * FROM HOTEIS
 
 class Hotel(Resource):
   argumentos = reqparse.RequestParser()
