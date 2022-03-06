@@ -1,9 +1,24 @@
 from models.hotel import HotelModel
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required
+import sqlite3
+
+# path /hoteis?cidade=RioDeJaneiro
+path_params = reqparse.RequestParser()
+path_params.add('cidade', type=str)
+path_params.add('estrelas_min', type=float)
+path_params.add('estrelas_max', type=float)
+path_params.add('diaria_min', type=float)
+path_params.add('diaria_max', type=float)
+path_params.add('limit', type=int)
+path_params.add('offset', type=int)
+
 
 class Hoteis(Resource): # Referente ao GET de todos os Hoteis
   def get(self):
+
+    dados = path_params.parse_args()
+
     return {'hoteis': [hotel.json() for hotel in HotelModel.query.all()]} # SELECT * FROM HOTEIS
 
 class Hotel(Resource):
