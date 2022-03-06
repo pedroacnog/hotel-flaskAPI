@@ -3,6 +3,30 @@ from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required
 import sqlite3
 
+def normalize_path_params(cidade=None, 
+                          estrelas_min = 0,
+                          estrelas_max = 5,
+                          diaria_min = 0,
+                          diaria_max = 10000,
+                          limit = 50,
+                          offset = 0, **dados,):
+  if cidade:
+    return {
+      'estrelas_min': estrelas_min,
+      'estrelas_max': estrelas_max,
+      'diaria_min': diaria_min,
+      'diaria_max': diaria_max,
+      'cidade': cidade,
+      'limit': limit,
+      'offset': offset}
+  return {
+      'estrelas_min': estrelas_min,
+      'estrelas_max': estrelas_max,
+      'diaria_min': diaria_min,
+      'diaria_max': diaria_max,
+      'limit': limit,
+      'offset': offset}
+
 # path /hoteis?cidade=RioDeJaneiro
 path_params = reqparse.RequestParser()
 path_params.add('cidade', type=str)
@@ -19,6 +43,7 @@ class Hoteis(Resource): # Referente ao GET de todos os Hoteis
 
     dados = path_params.parse_args()
 
+    dados_validos = {chave:dados[chave] for chave in dados if dados[chave] is not None}
     return {'hoteis': [hotel.json() for hotel in HotelModel.query.all()]} # SELECT * FROM HOTEIS
 
 class Hotel(Resource):
