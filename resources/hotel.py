@@ -51,8 +51,8 @@ class Hoteis(Resource): # Referente ao GET de todos os Hoteis
 
     if not parametros.get('cidade'):  # semelhante - parametros['cidade']
       consulta = "SELECT  * FROM hoteis \
-      WHERE (estrelas > ? and estrelas < ?)\
-      and (diaria > ? and diaria < ?) \
+      WHERE (estrelas >= ? and estrelas <= ?)\
+      and (diaria >= ? and diaria <= ?) \
       LIMIT ? OFFSET ?"
 
       tupla = tuple([parametros[chave] for chave in parametros])
@@ -60,8 +60,8 @@ class Hoteis(Resource): # Referente ao GET de todos os Hoteis
 
     else:
       consulta = "SELECT  * FROM hoteis \
-      WHERE (estrelas > ? and estrelas < ?)\
-      and (diaria > ? and diaria < ?) \
+      WHERE (estrelas >= ? and estrelas <= ?)\
+      and (diaria >= ? and diaria <= ?) \
       and cidade = ? LIMIT ? OFFSET ?"
 
       tupla = tuple([parametros[chave] for chave in parametros])
